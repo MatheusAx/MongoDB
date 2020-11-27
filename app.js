@@ -46,7 +46,10 @@ D -> Delete (Delete Apagar)
 //Rotas para aplicação
 //GET
 app.get("/", (req, res) => {
-  res.send("Você está no metodo Get");
+  Cliente.find((erro, dados) => {
+    if (erro) console.error(`Erro ao tentar listar os clientes ${erro}`);
+    res.status(200).send({ saida: dados });
+  });
 });
 
 //POST
@@ -59,13 +62,26 @@ app.post("/cadastro", (req, res) => {
 });
 
 //PUT
-app.put("/atualizar", (req, res) => {
-  res.send("Você está no metodo put");
+app.put("/atualizar/:id", (req, res) => {
+  Cliente.findByIdAndUpdate(req.params.id,req.body,{new:true},(erro,dados)=>{
+    if(erro){
+      res.status(400).send({resultado:`Erro ao tentar atualizar ${erro}`})
+      return
+    }
+    res.status(200).send({resultado:dados});
+
+  })
+
+
 });
 
 //DELETE
-app.delete("/apagar", (req, res) => {
-  res.send("Você está no metodo delet");
+app.delete("/apagar/:id", (req, res) => {
+  Cliente.findByIdAndDelete(req.params.id,(erro,dados)=>{
+    if(erro) console.error(`Erro ao tentar apagar ${erro}`);
+
+    res.status(200).send({ resultado: "Apagado"})
+  });
 });
 
 app.listen(3000);
