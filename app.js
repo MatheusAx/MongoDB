@@ -2,9 +2,23 @@
 //nome. Esse modulo nos ajuda a subir o servidor do node.js
 const express = require("express");
 
+//Importação do modulo do cors para fazer a CROSS-PLATAFORM
+//assim protocolos de origens diferentes podem acessar o conteúdo deste servidor
+const cors = require("cors");
+
 // Vamos criar um app para representar o servidor e fazer as suas
 // execuções
 const app = express();
+
+//Ativar o cors para ser utilizado
+app.use(cors());
+
+
+//Configurando cors para aceitar as diversas origens
+const corsConfig = {
+  origin: "*",
+  optionsSuccessstatus: 200
+};
 
 //Vamos importar o modulo do Mongoose para realizar as tarefas
 // com o banco de dados
@@ -45,7 +59,7 @@ D -> Delete (Delete Apagar)
 
 //Rotas para aplicação
 //GET
-app.get("/", (req, res) => {
+app.get("/", cors(corsConfig) , (req, res) => {
   Cliente.find((erro, dados) => {
     if (erro) console.error(`Erro ao tentar listar os clientes ${erro}`);
     res.status(200).send({ saida: dados });
@@ -84,5 +98,23 @@ app.delete("/apagar/:id", (req, res) => {
   });
 });
 
-app.listen(3000);
+
+
+//Rota para consultar um cliente por Id
+
+app.get("/:id",(req,res) => {
+  Cliente.findById(req.params.id, (erro, dados) => {
+    if (erro) {
+      res
+        .status(400)
+        .send({rs: `Erro ao tentar consultar um cliente ${erro}`});
+      return;
+    }
+    res.status(200).send({ rs: dados});
+  });
+});
+
+
+
+app.listen(3001);
 console.log("Servidor online...");
